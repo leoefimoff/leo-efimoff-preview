@@ -1,6 +1,6 @@
 // Обложки работ: порядок задаётся здесь. Одна карточка = одна работа.
 // { id } — работа видна, { id, hidden: true } — спрятана с сайта.
-// shots: кадры работы (первый — обложка). Файлы: images/NAME.webp и NAME-720.webp.
+// Файлы: images/work-NN.webp (1440), images/work-NN-720.webp (720).
 
 window.WORKS = [
   { id: "n01", shots: ["images/n01-01"] },
