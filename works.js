@@ -1,28 +1,27 @@
-// Порядок работ на сайте. Одна карточка = одна работа.
-// { id, shots: [...] } — работа с ракурсами: shots[0] обложка, остальные листаются внутри.
-// { id } — старая работа с одним кадром: images/work-NN.webp и -720.
-// hidden: true — работа спрятана с сайта (кнопка в панели).
+// Обложки работ: порядок задаётся здесь. Одна карточка = одна работа.
+// { id } — работа видна, { id, hidden: true } — спрятана с сайта.
+// Файлы: images/work-NN.webp (1440), images/work-NN-720.webp (720).
 
 window.WORKS = [
-  { id: "n01", shots: ["images/n01-01"] },
-  { id: "n02", shots: ["images/n02-01", "images/n02-02", "images/n02-03"] },
-  { id: "n03", shots: ["images/n03-01", "images/n03-02", "images/n03-03", "images/n03-04", "images/n03-05"] },
-  { id: "n04", shots: ["images/n04-01", "images/n04-02"] },
-  { id: "n05", shots: ["images/n05-01", "images/n05-02", "images/n05-03"] },
-  { id: "n06", shots: ["images/n06-01", "images/n06-02", "images/n06-03"] },
-  { id: "n07", shots: ["images/n07-01", "images/n07-02"] },
-  { id: "n08", shots: ["images/n08-01", "images/n08-02", "images/n08-03"] },
-  { id: "n09", shots: ["images/n09-01", "images/n09-02", "images/n09-03", "images/n09-04"] },
-  { id: "n10", shots: ["images/n10-01", "images/n10-02", "images/n10-03", "images/n10-04"] },
-  { id: "n11", shots: ["images/n11-01"] },
-  { id: "n12", shots: ["images/n12-01", "images/n12-02"] },
-  { id: "n13", shots: ["images/n13-01", "images/n13-02", "images/n13-03"] },
-  { id: "n14", shots: ["images/n14-01"] },
-  { id: "n15", shots: ["images/n15-01"] },
-  { id: "n16", shots: ["images/n16-01", "images/n16-02", "images/n16-03", "images/n16-04"] },
-  { id: "n17", shots: ["images/n17-01"] },
-  { id: "n18", shots: ["images/n18-01", "images/n18-02", "images/n18-03", "images/n18-04", "images/n18-05", "images/n18-06", "images/n18-07", "images/n18-08"] },
-  { id: "n19", shots: ["images/n19-01", "images/n19-02", "images/n19-03", "images/n19-04", "images/n19-05"] },
+  { id: "n01" },
+  { id: "n07" },
+  { id: "n02" },
+  { id: "n03" },
+  { id: "n04" },
+  { id: "n05" },
+  { id: "n06" },
+  { id: "n08" },
+  { id: "n09" },
+  { id: "n10" },
+  { id: "n11" },
+  { id: "n12" },
+  { id: "n13" },
+  { id: "n14" },
+  { id: "n15" },
+  { id: "n16" },
+  { id: "n17" },
+  { id: "n18" },
+  { id: "n19" },
   { id: "02" },
   { id: "03" },
   { id: "06" },
