@@ -53,9 +53,15 @@
     position: absolute; right: 10px; bottom: 10px; min-width: 22px; height: 22px;
     display: grid; place-items: center; padding: 0 6px; border-radius: 11px;
     background: rgba(20,20,20,.62); color: #fff; font-size: 11px; letter-spacing: .04em;
-    backdrop-filter: blur(3px); transition: opacity .3s ease; pointer-events: none;
+    backdrop-filter: blur(3px); opacity: 0; transition: opacity .25s ease; pointer-events: none;
   }
-  .work:hover .frame .many { opacity: 0; }
+  /* Видно только при наведении курсором. На тач-экранах метки нет совсем. */
+  @media (hover: hover) and (pointer: fine) {
+    .work:hover .frame .many { opacity: 1; }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .frame .many { display: none; }
+  }
   /* Photos are 3:4 to 4:5; this ratio trims no more than ~3% from any edge. */
   .frame { aspect-ratio: 39 / 50; background: var(--placeholder); overflow: hidden; }
   .frame img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity .6s ease, transform 1.2s ease; }
@@ -302,12 +308,19 @@
     if (e.key === "ArrowRight") stepShot(1);
   });
   let touchX = null;
-  viewer.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+  let touchY = null;
+  viewer.addEventListener("touchstart", e => {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
   viewer.addEventListener("touchend", e => {
     if (touchX === null) return;
     const dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 40) show(current + (dx < 0 ? 1 : -1));
-    touchX = null;
+    const dy = e.changedTouches[0].clientY - (touchY || 0);
+    touchX = null; touchY = null;
+    // Только горизонтальный свайп листает кадры этой работы.
+    // Раньше здесь стоял переход к следующей РАБОТЕ, из-за него и перескакивало.
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) stepShot(dx < 0 ? 1 : -1);
   });
 
   function setLang(l) {
