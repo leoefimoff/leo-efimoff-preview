@@ -25,7 +25,7 @@ window.WORKS = [
   { id: "n16", shots: ["images/n16-01", "images/n16-02", "images/n16-03", "images/n16-04"] },
   { id: "07" },
   { id: "n19", shots: ["images/n19-01", "images/n19-02", "images/n19-03", "images/n19-04", "images/n19-05"] },
-  { id: "02" },
+  { id: "02", hidden: true },
   { id: "03" },
   { id: "06" },
   { id: "09" },
