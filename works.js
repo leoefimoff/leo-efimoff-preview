@@ -18,7 +18,6 @@ window.WORKS = [
   { id: "n14", shots: ["images/n14-01"] },
   { id: "n13", shots: ["images/n13-01", "images/n13-02", "images/n13-03"] },
   { id: "n18", shots: ["images/n18-01", "images/n18-02", "images/n18-03", "images/n18-04", "images/n18-05", "images/n18-06", "images/n18-07", "images/n18-08"] },
-  { id: "n10", shots: ["images/n10-01", "images/n10-02", "images/n10-03", "images/n10-04"] },
   { id: "n17", shots: ["images/n17-01"] },
   { id: "n15", shots: ["images/n15-01"] },
   { id: "08" },
