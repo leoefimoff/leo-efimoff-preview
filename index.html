@@ -118,19 +118,13 @@
   .swipe-hint.show { opacity: .9; }
   .swipe-hint svg { width: 56px; height: 16px; display: block; overflow: visible; }
   .swipe-hint .track { opacity: .4; }
-  .swipe-hint .dot,
-  .swipe-hint .dot2 { animation: swipe-slide 1.6s ease-in-out infinite; }
-  .swipe-hint .dot2 { animation-delay: -.22s; opacity: .55; }
+  .swipe-hint .dot { animation: swipe-slide 1.3s ease-in-out infinite; }
   @keyframes swipe-slide {
-    0%   { transform: translateX(0);    opacity: .15 }
-    35%  { opacity: 1 }
-    75%  { opacity: .5 }
-    100% { transform: translateX(32px); opacity: .15 }
+    0%   { transform: translateX(32px); opacity: .25 }
+    45%  { opacity: 1 }
+    100% { transform: translateX(0);    opacity: .25 }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .swipe-hint .dot, .swipe-hint .dot2 { animation: none; }
-    .swipe-hint .dot { opacity: 1 }
-  }
+  @media (prefers-reduced-motion: reduce) { .swipe-hint .dot { animation: none; opacity: 1 } }
   /* Only phones: on desktop the arrows and keyboard are self-evident. */
   @media (min-width: 761px) { .swipe-hint { display: none; } }
 
@@ -196,7 +190,6 @@
     <svg viewBox="0 0 56 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
       <line class="track" x1="6" y1="8" x2="50" y2="8" stroke-dasharray="1.5 3.5"/>
       <circle class="dot" cx="8" cy="8" r="2.4" fill="currentColor" stroke="none"/>
-      <circle class="dot2" cx="8" cy="8" r="2.4" fill="currentColor" stroke="none"/>
     </svg>
   </div>
 </div>
