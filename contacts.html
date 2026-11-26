@@ -99,7 +99,7 @@
       </ul>
 
       <form id="contact-form" novalidate
-        action="https://formsubmit.co/leo@leoefimoff.com" method="POST" target="sink">
+        action="https://formspree.io/f/mwlozakv" method="POST">
         <div class="field">
           <label for="name" data-i18n="lbl_name">Name</label>
           <input id="name" name="name" type="text" autocomplete="name" maxlength="80" required>
@@ -114,13 +114,10 @@
           <div class="counter" id="message-counter" aria-live="off">0 / 2000</div>
         </div>
         <input type="hidden" name="_subject" value="New message from leoefimoff.com">
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
         <button class="send" type="submit" data-i18n="send">Send</button>
         <div class="form-note" id="form-note" role="status" aria-live="polite"></div>
       </form>
-      <iframe name="sink" id="sink" title="" style="display:none" tabindex="-1" aria-hidden="true"></iframe>
     </div>
   </section>
 </main>
@@ -189,11 +186,35 @@
   renderCounter();
 
   // Отправка идёт через FormSubmit (без регистрации): адрес получателя — в action формы.
-  document.getElementById("contact-form").addEventListener("submit", event => {
-    // Доставка писем сейчас не работает: сервис формы не принимает отправки.
-    // Пока это так, честно говорим об этом и не рисуем ложное «спасибо».
+  document.getElementById("contact-form").addEventListener("submit", async event => {
     event.preventDefault();
-    noteState="note_failed"; renderNote();
+    const form=event.currentTarget;
+    const filled=["name","email","message"].every(id=>form.elements[id].value.trim()!=="");
+    if (!filled) { noteState="note_missing"; renderNote(); return; }
+    const button=form.querySelector(".send");
+    const original=button.textContent;
+    button.disabled=true; button.textContent=TEXT[lang].sending; noteState="note_sending"; renderNote();
+    // Таймаут обязателен: без него кнопка навсегда застревает в «Sending».
+    const ctrl=new AbortController();
+    const timer=setTimeout(()=>ctrl.abort(), 20000);
+    let ok=false;
+    try {
+      const res=await fetch(form.action, {
+        method:"POST",
+        body:new FormData(form),
+        headers:{"Accept":"application/json"},
+        signal:ctrl.signal
+      });
+      const data=await res.json().catch(()=>({}));
+      ok = res.ok && data.ok===true;
+    } catch (e) {
+      ok = false;
+    } finally {
+      clearTimeout(timer);
+    }
+    if (ok) { noteState="note_sent"; form.reset(); renderCounter(); }
+    else { noteState="note_failed"; }
+    button.disabled=false; button.textContent=original; renderNote();
   });
 
   setLang(lang);
