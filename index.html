@@ -76,7 +76,8 @@
   footer .wrap { padding-top: 32px; padding-bottom: 32px; }
 
   /* Full-screen viewer */
-  .viewer .arrow.off { opacity: .18; pointer-events: none; }
+  /* Стрелки есть только у работ с несколькими кадрами. */
+  .viewer .arrow[hidden] { display: none; }
   .viewer {
     position: fixed; inset: 0; z-index: 20; background: var(--bg);
     display: none; align-items: center; justify-content: center;
@@ -267,8 +268,9 @@
     viewerCap.innerHTML = w.title ? `${w.title[lang]}${w.meta ? `<span>${w.meta[lang]}</span>` : ""}` : "";
     const prevBtn = document.getElementById("prev");
     const nextBtn = document.getElementById("next");
-    if (prevBtn) prevBtn.classList.toggle("off", count < 2);
-    if (nextBtn) nextBtn.classList.toggle("off", count < 2);
+    const single = count < 2;
+    if (prevBtn) { prevBtn.hidden = single; prevBtn.classList.remove("off"); }
+    if (nextBtn) { nextBtn.hidden = single; nextBtn.classList.remove("off"); }
   }
   function openViewer(i, k) { show(i, k || 0); viewer.classList.add("open"); document.body.classList.add("locked"); flashSwipeHint(); }
   function closeViewer() { viewer.classList.remove("open"); document.body.classList.remove("locked"); hideSwipeHint(); }
