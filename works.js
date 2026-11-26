@@ -1,11 +1,10 @@
-// Порядок работ на сайте. Одна карточка = одна работа.
-// { id, shots: [...] } — работа с ракурсами: shots[0] обложка, остальные листаются внутри.
-// { id } — старая работа с одним кадром: images/work-NN.webp и -720.
-// hidden: true — работа спрятана с сайта (кнопка в панели).
+// Обложки работ: порядок задаётся здесь. Одна карточка = одна работа.
+// { id } — работа видна, { id, hidden: true } — спрятана с сайта.
+// Файлы: images/work-NN.webp (1440), images/work-NN-720.webp (720).
 
 window.WORKS = [
-  { id: "n01", shots: ["images/n01-01"] },
   { id: "n07", shots: ["images/n07-01", "images/n07-02"] },
+  { id: "n01", shots: ["images/n01-01"] },
   { id: "n02", shots: ["images/n02-01", "images/n02-02", "images/n02-03"] },
   { id: "n03", shots: ["images/n03-01", "images/n03-02", "images/n03-03", "images/n03-04", "images/n03-05"] },
   { id: "n04", shots: ["images/n04-01", "images/n04-02"] },
