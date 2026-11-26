@@ -96,12 +96,12 @@
   .viewer .arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
-    color: var(--muted); transition: color .2s;
+    color: var(--ink); transition: opacity .2s;
   }
-  .viewer .arrow:hover { color: var(--ink); }
+  .viewer .arrow:hover { opacity: .5; }
   .viewer .prev { left: clamp(4px, 2vw, 32px); }
   .viewer .next { right: clamp(4px, 2vw, 32px); }
-  .viewer .arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.2; }
+  .viewer .arrow svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
   .viewer figcaption { flex: none; padding: 16px 16px 0; text-align: center; font-size: 13px; font-weight: 700; }
   .viewer figcaption:empty { display: none; }
   .viewer figcaption span { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
@@ -299,7 +299,11 @@
   document.getElementById("prev").onclick = e => { e.stopPropagation(); stepShot(-1); };
   document.getElementById("next").onclick = e => { e.stopPropagation(); stepShot(1); };
   document.getElementById("close").onclick = closeViewer;
-  viewer.onclick = e => { if (e.target === viewer || e.target.tagName === "FIGURE") closeViewer(); };
+  viewer.onclick = e => {
+    // Клик по самой фотографии листает дальше. Клик по пустому месту закрывает.
+    if (e.target === viewerImg) { stepShot(1); return; }
+    if (e.target === viewer || e.target.tagName === "FIGURE" || e.target.tagName === "FIGCAPTION") closeViewer();
+  };
   // The swipe hint is decoration: it must not act as a link, and it must not let the
   // click fall through to the figure underneath, which would close the viewer.
   document.querySelectorAll(".swipe-hint").forEach(el => {
