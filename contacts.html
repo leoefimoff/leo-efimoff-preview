@@ -188,11 +188,21 @@
     const original=button.textContent;
     button.disabled=true; button.textContent=TEXT[lang].sending; noteState="note_sending"; renderNote();
     try {
+      // Жёсткий таймаут: сервис иногда не отвечает вовсе, и без него кнопка
+      // навсегда застревает в «Sending». 15 секунд и честный отказ лучше.
       const AJAX="https://formsubmit.co/ajax/leo@leoefimoff.com";
-      const res=await fetch(AJAX, {method:"POST", body:new FormData(form), headers:{"Accept":"application/json"}});
+      const ctrl=new AbortController();
+      const timer=setTimeout(()=>ctrl.abort(), 15000);
       let ok=false;
-      try { const data=await res.json(); ok = res.ok && String(data.success)==="true"; }
-      catch (e) { ok = false; }
+      try {
+        const res=await fetch(AJAX, {method:"POST", body:new FormData(form), headers:{"Accept":"application/json"}, signal:ctrl.signal});
+        const data=await res.json();
+        ok = res.ok && String(data.success)==="true";
+      } catch (e) {
+        ok = false;
+      } finally {
+        clearTimeout(timer);
+      }
       if (ok) {
         noteState="note_sent"; form.reset(); renderCounter();
       } else {
