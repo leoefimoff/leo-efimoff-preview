@@ -99,7 +99,7 @@
       </ul>
 
       <form id="contact-form" novalidate
-        action="https://api.web3forms.com/submit" method="POST">
+        action="https://formsubmit.co/leo@leoefimoff.com" method="POST" target="sink">
         <div class="field">
           <label for="name" data-i18n="lbl_name">Name</label>
           <input id="name" name="name" type="text" autocomplete="name" maxlength="80" required>
@@ -113,14 +113,14 @@
           <textarea id="message" name="message" rows="4" maxlength="2000" required></textarea>
           <div class="counter" id="message-counter" aria-live="off">0 / 2000</div>
         </div>
-        <input type="hidden" name="access_key" value="18e74338-de63-4db7-a2cc-8dab3d664cf8">
-        <input type="hidden" name="subject" value="New message from leoefimoff.com">
-        <input type="hidden" name="from_name" value="leoefimoff.com">
-        <input type="hidden" name="redirect" value="https://leoefimoff.com/contacts.html?sent=1">
-        <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="_subject" value="New message from leoefimoff.com">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <button class="send" type="submit" data-i18n="send">Send</button>
         <div class="form-note" id="form-note" role="status" aria-live="polite"></div>
       </form>
+      <iframe name="sink" id="sink" title="" style="display:none" tabindex="-1" aria-hidden="true"></iframe>
     </div>
   </section>
 </main>
@@ -180,13 +180,19 @@
 
   // Отправка идёт через FormSubmit (без регистрации): адрес получателя — в action формы.
   document.getElementById("contact-form").addEventListener("submit", event => {
-    // Форма уходит обычной отправкой на сервис (без fetch): так работает
-    // и при выключенном JavaScript, и не упирается в CORS.
+    // Отправка идёт в скрытый iframe: сервис принимает сообщение и рассылает его,
+    // но ответ не отдаёт, поэтому ждать его бессмысленно.
     const form=event.currentTarget;
     const filled=["name","email","message"].every(id=>form.elements[id].value.trim()!=="");
     if (!filled) { event.preventDefault(); noteState="note_missing"; renderNote(); return; }
     const button=form.querySelector(".send");
     button.disabled=true; button.textContent=TEXT[lang].sending; noteState="note_sending"; renderNote();
+    // Даём браузеру отправить данные, затем показываем подтверждение и чистим поля.
+    setTimeout(() => {
+      noteState="note_sent";
+      form.reset(); renderCounter();
+      button.disabled=false; button.textContent=TEXT[lang].send; renderNote();
+    }, 2500);
   });
 
   setLang(lang);
