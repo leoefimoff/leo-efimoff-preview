@@ -98,7 +98,8 @@
         </li>
       </ul>
 
-      <form id="contact-form" novalidate>
+      <form id="contact-form" novalidate
+        action="https://formsubmit.co/leo@leoefimoff.com" method="POST">
         <div class="field">
           <label for="name" data-i18n="lbl_name">Name</label>
           <input id="name" name="name" type="text" autocomplete="name" maxlength="80" required>
@@ -112,6 +113,11 @@
           <textarea id="message" name="message" rows="4" maxlength="2000" required></textarea>
           <div class="counter" id="message-counter" aria-live="off">0 / 2000</div>
         </div>
+        <input type="hidden" name="_subject" value="Leo Efimoff — new message from the site">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://leoefimoff.com/contacts.html?sent=1">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <button class="send" type="submit" data-i18n="send">Send</button>
         <div class="form-note" id="form-note" role="status" aria-live="polite"></div>
       </form>
@@ -126,14 +132,18 @@
       intro:"For available works, commissions and ordering, write directly or use the form.",
       lbl_name:"Name", lbl_email:"Email", lbl_message:"Message", send:"Send",
       note_missing:"Please fill in your name, email and message.",
-      note_sent:"Thank you. The form isn’t connected to a mail service yet, so nothing was sent. Please write to leo@leoefimoff.com."
+      note_sent:"Thank you! Your message has been sent. We will reply to the address you left.",
+      note_sending:"Sending…",
+      note_failed:"Could not send just now. Please write to leo@leoefimoff.com."
     },
     es: {
       nav_works:"Obras", nav_about:"Sobre el artista", nav_contacts:"Contacto",
       intro:"Para obras disponibles, encargos y pedidos, escriba directamente o use el formulario.",
       lbl_name:"Nombre", lbl_email:"Correo", lbl_message:"Mensaje", send:"Enviar",
       note_missing:"Por favor, complete su nombre, correo y mensaje.",
-      note_sent:"Gracias. El formulario aún no está conectado a un servicio de correo, así que no se envió nada. Escriba a leo@leoefimoff.com."
+      note_sent:"¡Gracias! Su mensaje se ha enviado. Responderemos a la dirección que dejó.",
+      note_sending:"Enviando…",
+      note_failed:"No se pudo enviar. Escriba a leo@leoefimoff.com."
     }
   };
   let lang="en";
@@ -168,15 +178,31 @@
   messageEl.addEventListener("input", renderCounter);
   renderCounter();
 
-  // No backend yet: the form validates locally and reports that nothing was sent.
-  document.getElementById("contact-form").addEventListener("submit", event => {
+  // Отправка идёт через FormSubmit (без регистрации): адрес получателя — в action формы.
+  document.getElementById("contact-form").addEventListener("submit", async event => {
     event.preventDefault();
     const form=event.currentTarget;
     const filled=["name","email","message"].every(id=>form.elements[id].value.trim()!=="");
-    noteState = filled ? "note_sent" : "note_missing";
-    renderNote();
+    if (!filled) { noteState="note_missing"; renderNote(); return; }
+    const button=form.querySelector(".send");
+    const original=button.textContent;
+    button.disabled=true; button.textContent=TEXT[lang].sending; noteState="note_sending"; renderNote();
+    try {
+      const res=await fetch(form.action, {method:"POST", body:new FormData(form), headers:{"Accept":"application/json"}});
+      const data=await res.json().catch(()=>({success:res.ok}));
+      if (res.ok && data.success) {
+        noteState="note_sent"; form.reset(); renderCounter();
+      } else {
+        noteState="note_failed";
+      }
+    } catch (err) {
+      noteState="note_failed";
+    } finally {
+      button.disabled=false; button.textContent=original; renderNote();
+    }
   });
   setLang(lang);
+  if (new URLSearchParams(location.search).get("sent") === "1") { noteState="note_sent"; renderNote(); }
 </script>
 </body>
 </html>
