@@ -47,7 +47,15 @@
 
   #works { padding-top: 0; padding-bottom: clamp(32px, 3vw, 48px); }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
-  .work { display: block; width: 100%; text-align: left; cursor: zoom-in; }
+  .work { display: block; width: 100%; text-align: left; cursor: zoom-in; position: relative; }
+  /* Number of angles on a work: quiet, in the corner, gone on hover. */
+  .frame .many {
+    position: absolute; right: 10px; bottom: 10px; min-width: 22px; height: 22px;
+    display: grid; place-items: center; padding: 0 6px; border-radius: 11px;
+    background: rgba(20,20,20,.62); color: #fff; font-size: 11px; letter-spacing: .04em;
+    backdrop-filter: blur(3px); transition: opacity .3s ease; pointer-events: none;
+  }
+  .work:hover .frame .many { opacity: 0; }
   /* Photos are 3:4 to 4:5; this ratio trims no more than ~3% from any edge. */
   .frame { aspect-ratio: 39 / 50; background: var(--placeholder); overflow: hidden; }
   .frame img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity .6s ease, transform 1.2s ease; }
@@ -60,6 +68,7 @@
   footer .wrap { padding-top: 32px; padding-bottom: 32px; }
 
   /* Full-screen viewer */
+  .viewer .arrow.off { opacity: .18; pointer-events: none; }
   .viewer {
     position: fixed; inset: 0; z-index: 20; background: var(--bg);
     display: none; align-items: center; justify-content: center;
@@ -178,12 +187,12 @@
 <script>
   const TEXT = {
     en: {
-      name: "Leo Efimoff", nav_works: "Works", nav_about: "About", nav_contacts: "Contacts", close: "Close", work: "Work",
+      name: "Leo Efimoff", nav_works: "Works", nav_about: "About", nav_contacts: "Contacts", close: "Close", work: "Work", variant: "Variant",
       intro: "Sculpture and objects for interiors. Each piece is made by hand.",
       quote: "“Art creates ugly things that often grow more beautiful with time. Fashion creates beautiful things that always grow ugly with time.”"
     },
     es: {
-      name: "Leo Efimoff", nav_works: "Obras", nav_about: "Sobre el artista", nav_contacts: "Contacto", close: "Cerrar", work: "Obra",
+      name: "Leo Efimoff", nav_works: "Obras", nav_about: "Sobre el artista", nav_contacts: "Contacto", close: "Cerrar", work: "Obra", variant: "Variante",
       intro: "Escultura y objetos para interiores. Cada pieza está hecha a mano.",
       quote: "«El arte crea cosas feas que muchas veces se vuelven más bellas con el tiempo. La moda crea cosas bellas que siempre se vuelven feas con el tiempo.»"
     }
@@ -196,11 +205,16 @@
   const viewerImg = document.getElementById("viewer-img");
   const viewerCap = document.getElementById("viewer-cap");
   const counter = document.getElementById("counter");
-  const full = w => `images/work-${w.id}.webp`;
-  const small = w => `images/work-${w.id}-720.webp`;
+  // Каждая работа открывается отдельно: листаются только её кадры.
+  // shots: [обложка, вариант 2, вариант 3, ...]; без shots — один кадр work-NN.
+  const shotsOf = w => w.shots && w.shots.length ? w.shots : [`images/work-${w.id}`];
+  const imgFor = (w, k, px) => `${shotsOf(w)[k]}${px ? "-" + px : ""}.webp`;
+  const full = (w, k = 0) => imgFor(w, k, null);
+  const small = (w, k = 0) => imgFor(w, k, 720);
   const alt = (w, i) => w.title ? w.title[lang] : `${TEXT[lang].name}, ${TEXT[lang].work} ${i + 1}`;
   let lang = "en";
   let current = 0;
+  let shot = 0;
   try { lang = localStorage.getItem("lang") || (navigator.language.startsWith("es") ? "es" : "en"); } catch (e) {}
   if (!TEXT[lang]) lang = "en";
 
@@ -209,10 +223,12 @@
     works.forEach((w, i) => {
       const item = document.createElement("button");
       item.className = "work";
+      const many = shotsOf(w).length > 1;
       item.innerHTML = `<div class="frame"><img src="${small(w)}"
           srcset="${small(w)} 720w, ${full(w)} 1440w"
           sizes="(max-width: 760px) 50vw, (max-width: 1399px) 33vw, 420px"
-          alt="${alt(w, i)}" loading="eager" decoding="async" fetchpriority="${i < 6 ? "high" : "auto"}"></div>`;
+          alt="${alt(w, i)}" loading="eager" decoding="async" fetchpriority="${i < 6 ? "high" : "auto"}">
+          ${many ? `<span class="many" aria-hidden="true">${shotsOf(w).length}</span>` : ""}</div>`;
       const img = item.querySelector("img");
       // A cached image can finish before this handler is attached, so trust the
       // decoded state as well as the event — otherwise the tile stays at opacity 0.
@@ -228,17 +244,33 @@
     });
   }
 
-  function show(i) {
-    current = (i + works.length) % works.length;
+  // Показ кадра shot текущей работы. Листание за пределы работы закрыто.
+  function show(i, k) {
+    current = i;
     const w = works[current];
-    viewerImg.src = full(w);
+    const count = shotsOf(w).length;
+    shot = Math.max(0, Math.min(count - 1, k || 0));
+    viewerImg.src = full(w, shot);
     viewerImg.alt = alt(w, current);
-    counter.textContent = `${current + 1} / ${works.length}`;
+    counter.textContent = count > 1
+      ? `${TEXT[lang].variant} ${shot + 1} / ${count}`
+      : (w.title ? w.title[lang] : "");
     viewerCap.innerHTML = w.title ? `${w.title[lang]}${w.meta ? `<span>${w.meta[lang]}</span>` : ""}` : "";
-    [current - 1, current + 1].forEach(n => { new Image().src = full(works[(n + works.length) % works.length]); });
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    if (prevBtn) prevBtn.classList.toggle("off", count < 2 || shot === 0);
+    if (nextBtn) nextBtn.classList.toggle("off", count < 2 || shot === count - 1);
   }
-  function openViewer(i) { show(i); viewer.classList.add("open"); document.body.classList.add("locked"); flashSwipeHint(); }
+  function openViewer(i, k) { show(i, k || 0); viewer.classList.add("open"); document.body.classList.add("locked"); flashSwipeHint(); }
   function closeViewer() { viewer.classList.remove("open"); document.body.classList.remove("locked"); hideSwipeHint(); }
+  // Шаг только внутри текущей работы: за её пределы не выходим.
+  function stepShot(d) {
+    const count = shotsOf(works[current]).length;
+    const next = shot + d;
+    if (next < 0 || next >= count) return;
+    show(current, next);
+  }
+
 
   // Swipe hint: visible for three seconds each time a photo opens, then gone.
   const swipeHint = document.querySelector(".swipe-hint");
@@ -254,8 +286,8 @@
     if (swipeHint) swipeHint.classList.remove("show");
   }
 
-  document.getElementById("prev").onclick = e => { e.stopPropagation(); show(current - 1); };
-  document.getElementById("next").onclick = e => { e.stopPropagation(); show(current + 1); };
+  document.getElementById("prev").onclick = e => { e.stopPropagation(); stepShot(-1); };
+  document.getElementById("next").onclick = e => { e.stopPropagation(); stepShot(1); };
   document.getElementById("close").onclick = closeViewer;
   viewer.onclick = e => { if (e.target === viewer || e.target.tagName === "FIGURE") closeViewer(); };
   // The swipe hint is decoration: it must not act as a link, and it must not let the
@@ -266,8 +298,8 @@
   document.addEventListener("keydown", e => {
     if (!viewer.classList.contains("open")) return;
     if (e.key === "Escape") closeViewer();
-    if (e.key === "ArrowLeft") show(current - 1);
-    if (e.key === "ArrowRight") show(current + 1);
+    if (e.key === "ArrowLeft") stepShot(-1);
+    if (e.key === "ArrowRight") stepShot(1);
   });
   let touchX = null;
   viewer.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
