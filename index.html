@@ -106,9 +106,9 @@
   .viewer figcaption:empty { display: none; }
   .viewer figcaption span { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
 
-  /* Swipe affordance: a dot travelling along a faint dotted track — reads as "drag".
-     Shown for three seconds after a photo with several angles opens, then fades out.
-     It alternates direction (left→right, then right→left) the way a finger would move.
+  /* Swipe affordance: two small dots gliding along a faint dotted track — reads as two
+     fingers moving across the glass. The pair always runs left→right, the direction a
+     page advances, so it never flips from one opening to the next.
      One-photo works never show it. */
   .swipe-hint {
     position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
@@ -118,19 +118,19 @@
   .swipe-hint.show { opacity: .9; }
   .swipe-hint svg { width: 56px; height: 16px; display: block; overflow: visible; }
   .swipe-hint .track { opacity: .4; }
-  .swipe-hint .dot { animation: swipe-slide 1.3s ease-in-out infinite; }
-  .swipe-hint.rev .dot { animation-name: swipe-slide-back; }
+  .swipe-hint .dot,
+  .swipe-hint .dot2 { animation: swipe-slide 1.6s ease-in-out infinite; }
+  .swipe-hint .dot2 { animation-delay: -.22s; opacity: .55; }
   @keyframes swipe-slide {
-    0%   { transform: translateX(0);    opacity: .25 }
-    45%  { opacity: 1 }
-    100% { transform: translateX(32px); opacity: .25 }
+    0%   { transform: translateX(0);    opacity: .15 }
+    35%  { opacity: 1 }
+    75%  { opacity: .5 }
+    100% { transform: translateX(32px); opacity: .15 }
   }
-  @keyframes swipe-slide-back {
-    0%   { transform: translateX(32px); opacity: .25 }
-    45%  { opacity: 1 }
-    100% { transform: translateX(0);    opacity: .25 }
+  @media (prefers-reduced-motion: reduce) {
+    .swipe-hint .dot, .swipe-hint .dot2 { animation: none; }
+    .swipe-hint .dot { opacity: 1 }
   }
-  @media (prefers-reduced-motion: reduce) { .swipe-hint .dot { animation: none; opacity: 1 } }
   /* Only phones: on desktop the arrows and keyboard are self-evident. */
   @media (min-width: 761px) { .swipe-hint { display: none; } }
 
@@ -196,6 +196,7 @@
     <svg viewBox="0 0 56 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
       <line class="track" x1="6" y1="8" x2="50" y2="8" stroke-dasharray="1.5 3.5"/>
       <circle class="dot" cx="8" cy="8" r="2.4" fill="currentColor" stroke="none"/>
+      <circle class="dot2" cx="8" cy="8" r="2.4" fill="currentColor" stroke="none"/>
     </svg>
   </div>
 </div>
@@ -287,15 +288,12 @@
 
 
   // Swipe hint: only for works with several angles, visible for three seconds, then gone.
-  // Direction alternates on every opening so it matches the way a finger moves across.
+  // Always the same direction — no alternating, so it reads identically every time.
   const swipeHint = document.querySelector(".swipe-hint");
   let swipeHintTimer = null;
-  let swipeHintFlip = false;
   function flashSwipeHint() {
     if (!swipeHint || window.matchMedia("(min-width: 761px)").matches) return;
     if (shotsOf(works[current]).length < 2) { hideSwipeHint(); return; }
-    swipeHintFlip = !swipeHintFlip;
-    swipeHint.classList.toggle("rev", swipeHintFlip);
     swipeHint.classList.add("show");
     clearTimeout(swipeHintTimer);
     swipeHintTimer = setTimeout(() => swipeHint.classList.remove("show"), 3000);
