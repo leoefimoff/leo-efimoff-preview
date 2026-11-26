@@ -4,6 +4,7 @@
 // hidden: true — работа спрятана с сайта (кнопка в панели).
 
 window.WORKS = [
+  { id: "n01", shots: ["images/n01-01"] },
   { id: "n08", shots: ["images/n08-01", "images/n08-02", "images/n08-03"] },
   { id: "n03", shots: ["images/n03-01", "images/n03-02", "images/n03-03", "images/n03-04", "images/n03-05"] },
   { id: "n09", shots: ["images/n09-01", "images/n09-02", "images/n09-03", "images/n09-04"] },
@@ -60,5 +61,4 @@ window.WORKS = [
   { id: "39" },
   { id: "40" },
   { id: "41" },
-  { id: "n01", shots: ["images/n01-01"], hidden: true },
 ];
