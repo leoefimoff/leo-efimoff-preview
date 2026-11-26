@@ -49,11 +49,13 @@
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
   .work { display: block; width: 100%; text-align: left; cursor: zoom-in; position: relative; }
   /* Number of angles on a work: quiet, in the corner, gone on hover. */
+  /* Количество кадров: просто чёрная жирная цифра, без плашки. */
   .frame .many {
-    position: absolute; right: 10px; bottom: 10px; min-width: 22px; height: 22px;
-    display: grid; place-items: center; padding: 0 6px; border-radius: 11px;
-    background: rgba(20,20,20,.62); color: #fff; font-size: 11px; letter-spacing: .04em;
-    backdrop-filter: blur(3px); opacity: 0; transition: opacity .25s ease; pointer-events: none;
+    position: absolute; right: 9px; bottom: 7px;
+    color: #141414; font-size: 13px; font-weight: 700; letter-spacing: .02em;
+    /* Мягкий светлый ореол, чтобы цифра читалась и на тёмных фото. Плашки нет. */
+    text-shadow: 0 0 7px rgba(255,255,255,.9);
+    opacity: 0; transition: opacity .25s ease; pointer-events: none;
   }
   /* Видно только при наведении курсором. На тач-экранах метки нет совсем. */
   @media (hover: hover) and (pointer: fine) {
@@ -87,9 +89,10 @@
   .viewer .bar {
     position: absolute; top: 0; left: 0; right: 0; height: 72px;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 0 var(--gutter); font-size: 13px; color: var(--muted);
+    padding: 0 var(--gutter); font-size: 13px; font-weight: 700; color: var(--ink);
   }
-  .viewer .close:hover { color: var(--ink); }
+  .viewer .close { font-weight: 700; color: var(--ink); }
+  .viewer .close:hover { opacity: .55; }
   .viewer .arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
@@ -99,9 +102,9 @@
   .viewer .prev { left: clamp(4px, 2vw, 32px); }
   .viewer .next { right: clamp(4px, 2vw, 32px); }
   .viewer .arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.2; }
-  .viewer figcaption { flex: none; padding: 16px 16px 0; text-align: center; font-size: 13px; }
+  .viewer figcaption { flex: none; padding: 16px 16px 0; text-align: center; font-size: 13px; font-weight: 700; }
   .viewer figcaption:empty { display: none; }
-  .viewer figcaption span { display: block; color: var(--muted); font-size: 12px; }
+  .viewer figcaption span { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
 
   /* Swipe affordance: a dot travelling along a faint dotted track — reads as "drag".
      Shown for three seconds after a photo opens, then fades out to keep the viewer bare. */
@@ -258,23 +261,20 @@
     shot = Math.max(0, Math.min(count - 1, k || 0));
     viewerImg.src = full(w, shot);
     viewerImg.alt = alt(w, current);
-    counter.textContent = count > 1
-      ? `${TEXT[lang].variant} ${shot + 1} / ${count}`
-      : (w.title ? w.title[lang] : "");
+    counter.textContent = count > 1 ? `${shot + 1} / ${count}` : "";
     viewerCap.innerHTML = w.title ? `${w.title[lang]}${w.meta ? `<span>${w.meta[lang]}</span>` : ""}` : "";
     const prevBtn = document.getElementById("prev");
     const nextBtn = document.getElementById("next");
-    if (prevBtn) prevBtn.classList.toggle("off", count < 2 || shot === 0);
-    if (nextBtn) nextBtn.classList.toggle("off", count < 2 || shot === count - 1);
+    if (prevBtn) prevBtn.classList.toggle("off", count < 2);
+    if (nextBtn) nextBtn.classList.toggle("off", count < 2);
   }
   function openViewer(i, k) { show(i, k || 0); viewer.classList.add("open"); document.body.classList.add("locked"); flashSwipeHint(); }
   function closeViewer() { viewer.classList.remove("open"); document.body.classList.remove("locked"); hideSwipeHint(); }
   // Шаг только внутри текущей работы: за её пределы не выходим.
   function stepShot(d) {
     const count = shotsOf(works[current]).length;
-    const next = shot + d;
-    if (next < 0 || next >= count) return;
-    show(current, next);
+    if (count < 2) return;
+    show(current, (shot + d + count) % count);
   }
 
 
