@@ -38,3 +38,4 @@ In `works.js`, change an entry from `{ id: "03" }` to:
 4. **Order of works:** the four outdoor garden and courtyard renders (works 02–05) currently lead the grid. It was suggested to the client that the grid open with a studio shot instead. Not decided.
 5. **Hosting:** the site isn't online yet.
 6. The folder is still named `lev-efimov` (an older spelling). Rename it to `leo-efimoff` before hosting if it will appear in the URL.
+<!-- deploy trigger 1795681632 -->
