@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /
+
+# Сайт доступен по адресу https://leoefimoff.com
+# Технический адрес github.io не должен попадать в поиск.
