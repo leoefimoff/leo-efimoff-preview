@@ -188,9 +188,12 @@
     const original=button.textContent;
     button.disabled=true; button.textContent=TEXT[lang].sending; noteState="note_sending"; renderNote();
     try {
-      const res=await fetch(form.action, {method:"POST", body:new FormData(form), headers:{"Accept":"application/json"}});
-      const data=await res.json().catch(()=>({success:res.ok}));
-      if (res.ok && data.success) {
+      const AJAX="https://formsubmit.co/ajax/leo@leoefimoff.com";
+      const res=await fetch(AJAX, {method:"POST", body:new FormData(form), headers:{"Accept":"application/json"}});
+      let ok=false;
+      try { const data=await res.json(); ok = res.ok && String(data.success)==="true"; }
+      catch (e) { ok = false; }
+      if (ok) {
         noteState="note_sent"; form.reset(); renderCounter();
       } else {
         noteState="note_failed";
